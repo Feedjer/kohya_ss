@@ -1,87 +1,152 @@
 module.exports = {
   run: [
-    // nvidia 50 series
+    // nvidia windows 
     {
-      "when": "{{gpu === 'nvidia' && kernel.gpu_model && / 50.+/.test(kernel.gpu_model) }}",
+      "when": "{{gpu === 'nvidia' && platform === 'win32'}}",
       "method": "shell.run",
       "params": {
         "venv": "{{args && args.venv ? args.venv : null}}",
         "path": "{{args && args.path ? args.path : '.'}}",
-        "message": [
-          "uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128 {{args && args.xformers ? 'xformers' : ''}} --force-reinstall --no-deps --index-strategy unsafe-best-match",
-          'uv pip install -U bitsandbytes --force-reinstall --no-deps'
-        ]
+        "message": "uv pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 {{args && args.xformers ? 'xformers==0.0.30' : ''}} --index-url https://download.pytorch.org/whl/cu128 --force-reinstall --no-deps"
       },
       "next": null
     },
-    // windows nvidia
+    // nvidia linux
     {
-      "when": "{{platform === 'win32' && gpu === 'nvidia'}}",
+      "when": "{{gpu === 'nvidia' && platform === 'linux'}}",
       "method": "shell.run",
       "params": {
+        "bluefairy": "off",
         "venv": "{{args && args.venv ? args.venv : null}}",
         "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.0 {{args && args.xformers ? 'xformers' : ''}}  --index-url https://download.pytorch.org/whl/cu124"
-      }
+        "message": "uv pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 {{args && args.xformers ? 'xformers==0.0.30' : ''}} --index-url https://download.pytorch.org/whl/cu128 --force-reinstall"
+      },
+      "next": null
     },
-    // windows amd
+    // RDNA 1 (5000s)
     {
-      "when": "{{platform === 'win32' && gpu === 'amd'}}",
+      "when": "{{platform === 'win32' && gpu === 'amd' && /^gfx101[012]$/.test(gpu_target)}}",
       "method": "shell.run",
       "params": {
+        "bluefairy": "off",
+        "env": { "UV_SKIP_WHEEL_FILENAME_CHECK": "1" },
+        "venv_python": "{{args && args.venv_python ? args.venv_python : null}}",
         "venv": "{{args && args.venv ? args.venv : null}}",
         "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch-directml torchvision torchaudio numpy==1.26.4"
-      }
+        "message": "uv pip install --pre torch torchvision torchaudio --index-url https://rocm.nightlies.amd.com/v2-staging/gfx101X-dgpu --force-reinstall"
+      },
+      "next": null
     },
-    // windows cpu
+    // RDNA 2 (6000s)
     {
-      "when": "{{platform === 'win32' && (gpu !== 'nvidia' && gpu !== 'amd')}}",
+      "when": "{{platform === 'win32' && gpu === 'amd' && /^gfx103[0124]$/.test(gpu_target)}}",
       "method": "shell.run",
       "params": {
+        "bluefairy": "off",
+        "env": { "UV_SKIP_WHEEL_FILENAME_CHECK": "1" },
+        "venv_python": "{{args && args.venv_python ? args.venv_python : null}}",
         "venv": "{{args && args.venv ? args.venv : null}}",
         "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.0 --index-url https://download.pytorch.org/whl/cpu"
-      }
+        "message": "uv pip install --pre torch torchvision torchaudio --index-url https://rocm.nightlies.amd.com/v2-staging/gfx103X-dgpu --force-reinstall"
+      },
+      "next": null
     },
-    // mac
+    // RDNA 3 (7000/8000s)
     {
-      "when": "{{platform === 'darwin'}}",
+      "when": "{{platform === 'win32' && gpu === 'amd' && /^gfx110[012]$/.test(gpu_target)}}",
       "method": "shell.run",
       "params": {
+        "bluefairy": "off",
+        "env": { "UV_SKIP_WHEEL_FILENAME_CHECK": "1" },
+        "venv_python": "{{args && args.venv_python ? args.venv_python : null}}",
         "venv": "{{args && args.venv ? args.venv : null}}",
         "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.0 --index-url https://download.pytorch.org/whl/cpu"
-      }
+        "message": "uv pip install --pre torch torchvision torchaudio --index-url https://rocm.nightlies.amd.com/v2-staging/gfx110X-all --force-reinstall"
+      },
+      "next": null
     },
-    // linux nvidia
+    // RDNA 4 (9000s)
     {
-      "when": "{{platform === 'linux' && gpu === 'nvidia'}}",
+      "when": "{{platform === 'win32' && gpu === 'amd' && /^gfx120[01]$/.test(gpu_target)}}",
       "method": "shell.run",
       "params": {
+        "bluefairy": "off",
+        "env": { "UV_SKIP_WHEEL_FILENAME_CHECK": "1" },
+        "venv_python": "{{args && args.venv_python ? args.venv_python : null}}",
         "venv": "{{args && args.venv ? args.venv : null}}",
         "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.0 {{args && args.xformers ? 'xformers' : ''}}  --index-url  https://download.pytorch.org/whl/cu124"
-      }
+        "message": "uv pip install --pre torch torchvision torchaudio --index-url https://rocm.nightlies.amd.com/v2-staging/gfx120X-all --force-reinstall"
+      },
+      "next": null
     },
-    // linux rocm (amd)
+    // STRIX POINT (880M/890M / gfx1150)
     {
-      "when": "{{platform === 'linux' && gpu === 'amd'}}",
+      "when": "{{platform === 'win32' && gpu === 'amd' && /^gfx1150$/.test(gpu_target)}}",
       "method": "shell.run",
       "params": {
+        "bluefairy": "off",
+        "env": { "UV_SKIP_WHEEL_FILENAME_CHECK": "1" },
+        "venv_python": "{{args && args.venv_python ? args.venv_python : null}}",
         "venv": "{{args && args.venv ? args.venv : null}}",
         "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.0 --index-url https://download.pytorch.org/whl/rocm6.2"
-      }
+        "message": "uv pip install --pre torch torchvision torchaudio --index-url https://rocm.nightlies.amd.com/v2-staging/gfx1150 --force-reinstall"
+      },
+      "next": null
     },
-    // linux cpu
+    // STRIX HALO (8060s / gfx1151)
     {
-      "when": "{{platform === 'linux' && (gpu !== 'amd' && gpu !=='nvidia')}}",
+      "when": "{{platform === 'win32' && gpu === 'amd' && /^gfx1151$/.test(gpu_target)}}",
+      "method": "shell.run",
+      "params": {
+        "bluefairy": "off",
+        "env": { "UV_SKIP_WHEEL_FILENAME_CHECK": "1" },
+        "venv_python": "{{args && args.venv_python ? args.venv_python : null}}",
+        "venv": "{{args && args.venv ? args.venv : null}}",
+        "path": "{{args && args.path ? args.path : '.'}}",
+        "message": "uv pip install --pre torch torchvision torchaudio --index-url https://rocm.nightlies.amd.com/v2-staging/gfx1151 --force-reinstall"
+      },
+      "next": null
+    },
+    // amd linux (rocm)
+    {
+      "when": "{{gpu === 'amd' && platform === 'linux'}}",
       "method": "shell.run",
       "params": {
         "venv": "{{args && args.venv ? args.venv : null}}",
         "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.0 --index-url https://download.pytorch.org/whl/cpu"
+        "message": "uv pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 --index-url https://download.pytorch.org/whl/rocm6.3 --force-reinstall --no-deps"
+      },
+      "next": null
+    },
+    // apple silicon mac
+    {
+      "when": "{{platform === 'darwin' && arch === 'arm64'}}",
+      "method": "shell.run",
+      "params": {
+        "venv": "{{args && args.venv ? args.venv : null}}",
+        "path": "{{args && args.path ? args.path : '.'}}",
+        "message": "uv pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 --index-url https://download.pytorch.org/whl/cpu --force-reinstall --no-deps"
+      },
+      "next": null
+    },
+    // intel mac
+    {
+      "when": "{{platform === 'darwin' && arch !== 'arm64'}}",
+      "method": "shell.run",
+      "params": {
+        "venv": "{{args && args.venv ? args.venv : null}}",
+        "path": "{{args && args.path ? args.path : '.'}}",
+        "message": "uv pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 --index-url https://download.pytorch.org/whl/cpu --force-reinstall --no-deps"
+      },
+      "next": null
+    },
+    // cpu
+    {
+      "method": "shell.run",
+      "params": {
+        "venv": "{{args && args.venv ? args.venv : null}}",
+        "path": "{{args && args.path ? args.path : '.'}}",
+        "message": "uv pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0  --index-url https://download.pytorch.org/whl/cpu --force-reinstall --no-deps"
       }
     }
   ]
