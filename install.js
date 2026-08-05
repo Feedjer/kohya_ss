@@ -34,6 +34,13 @@ module.exports = {
       }
     },
     {
+      method: "fs.copy",
+      params: {
+        src: "blip.py",
+        dest: "app/sd-scripts/finetune/blip/blip.py"
+      }
+    },
+    {
       method: "notify",
       params: {
         html: "Installation successful!"
