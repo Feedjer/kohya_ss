@@ -1,6 +1,8 @@
 module.exports = {
+  requires: {
+    bundle: "ai",
+  },
   run: [
-    // Edit this step to customize the git repository to use
     {
       method: "shell.run",
       params: {
@@ -9,28 +11,40 @@ module.exports = {
         ]
       }
     },
-    // Delete this step if your project does not use torch
+    {
+      method: "shell.run",
+      params: {
+        path: "app",
+        venv: "venv",
+        message: [
+          "uv pip install gradio devicetorch",
+          "python setup/setup_windows.py --headless"
+        ]
+      }
+    },
     {
       method: "script.start",
       params: {
         uri: "torch.js",
         params: {
-          path: "app",                // Edit this to customize the path to start the shell from
-          venv: "venv",                // Edit this to customize the venv folder path
-           xformers: true   // uncomment this line if your project requires xformers
+          path: "app",
+          venv: "venv",
+           xformers: true
         }
       }
     },
-    // Edit this step with your custom install commands
     {
-      method: "shell.run",
+      method: "fs.copy",
       params: {
-        path: "app",                // Edit this to customize the path to start the shell from
-        message: [
-          "pip install gradio devicetorch",
-          "{{os.platform() === 'win32' ? 'echo 1 | setup.bat' : 'chmod +x ./setup.sh && ./setup.sh'}}"
-        ]
+        src: "blip.py",
+        dest: "app/sd-scripts/finetune/blip/blip.py"
       }
     },
+    {
+      method: "notify",
+      params: {
+        html: "Installation successful!"
+      }
+    }
   ]
 }
